@@ -1,0 +1,62 @@
+#include <iostream>
+
+using namespace std;
+
+const int maxn = 3005;
+int array[maxn];
+int cnt[maxn];
+
+inline int abs(int i){
+	return i > 0 ? i : -i;
+}
+
+int main(){
+#ifdef LOCAL
+	freopen("input.txt","r",stdin);	
+#endif
+	int n;
+	while(cin>>n){
+		for(int i=0;i<n;++i){
+			cin>>array[i];
+		}
+		for(int i=1;i<n;++i){
+			cnt[i] = 0;
+		}
+		int tmp;
+		bool flag = false;
+		for(int i=1;i<n;++i){
+			tmp = array[i]-array[i-1];
+			tmp = abs(tmp);
+			if(tmp == 0 || tmp >=n){
+				cout<<"Not jolly"<<endl;
+				flag = true;
+				break;
+			}else{
+				++cnt[tmp];
+				if(cnt[tmp] > 1){
+					cout<<"Not jolly"<<endl;
+					flag = true;
+					break;
+				}
+			}
+		}
+		if(flag){
+			continue;
+		}
+		for(int i=1;i<n;++i){
+			if(cnt[i] != 1){
+				cout<<"Not jolly"<<endl;
+				flag = true;
+				break;
+			}
+		}
+		if(flag){
+			continue;
+		}
+		cout<<"Jolly"<<endl;
+	}
+	
+
+
+return 0;
+}

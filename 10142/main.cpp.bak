@@ -1,0 +1,127 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sstream>
+
+using namespace std;
+
+int main(){
+#ifdef LOCAL
+	freopen("input.txt","r",stdin);
+	freopen("output.txt","w",stdout);
+#endif
+	int kase;
+	cin>>kase;
+	while(kase--){
+		int n;
+		cin>>n;
+		//cout<<"kase="<<kase<<" n="<<n<<endl;
+		if(n){
+			string tmp;
+			getline(cin,tmp);
+			vector<string> can(n+1);
+			for(int i=1;i<=n;++i){
+				getline(cin,tmp);
+				can[i]=tmp;
+				//cout<<"i="<<i<<" can[i]="<<can[i]<<endl;
+			}
+			vector<int> ptmp(n);
+			vector<vector<int>> p;
+			while(getline(cin,tmp) && tmp.length() > 1){
+				istringstream iss(tmp);
+				for(int i=0;i<n;++i){
+					iss>>ptmp[i];
+				}
+				p.push_back(ptmp);
+			}
+			int max = 0;
+			int min = n;
+			int m = p.size();
+			vector<int> maxloc,minloc;
+			vector<int> count(n+1);
+			int half = (m+1)/2;
+			int temp;
+			int cnt=0;
+			while(true){
+				max = 0;
+				min = m;
+				++cnt;
+				//cout<<"cnt="<<cnt<<" m="<<m<<" half="<<half<<endl;
+				for(int j=1;j<=n;++j){
+					count[j] = 0;
+				}
+				for(int i=0;i<m;++i){
+					for(int j=0;j<n;++j){
+						temp = p[i][j];
+						if(temp > 0){
+							++count[temp];
+							break;
+						}
+					}
+				}
+				/*
+				if(kase == 75){
+					cout<<"cnt="<<cnt<<" m="<<m<<" n="<<n<<endl;
+					for(int j=1;j<=n;++j){
+						cout<<"j="<<j<<" count[j]="<<count[j]<<endl;
+					}
+				}
+				*/
+				for(int j=1;j<=n;++j){
+					if(count[j] > max){
+						max = count[j];
+						maxloc.clear();
+						maxloc.push_back(j);
+					}else if(count[j] == max){
+						maxloc.push_back(j);
+					}
+					if(cnt == 1){
+						if(count[j] < min){
+							min = count[j];
+							minloc.clear();
+							minloc.push_back(j);
+						}else if(count[j] == min){
+							minloc.push_back(j);
+						}
+					}
+					if(cnt > 1){
+						if(count[j]>0 && count[j] < min){
+							min = count[j];
+							minloc.clear();
+							minloc.push_back(j);
+						}else if(count[j]>0 && count[j] == min){
+							minloc.push_back(j);
+						}
+					}	
+				}
+				//cout<<"cnt="<<cnt<<" max="<<max<<" min="<<min<<endl;
+				if(max >= half){
+					for(int i=0;i<maxloc.size();++i){
+						cout<<can[maxloc[i]]<<endl;
+					}
+					break;
+				}else if(max==min){
+					for(int i=0;i<maxloc.size();++i){
+						cout<<can[maxloc[i]]<<endl;
+					}
+					break;
+				}else{
+					for(int ii=0;ii<minloc.size();++ii){
+						temp = minloc[ii];
+						for(int i=0;i<m;++i){
+							for(int j=0;j<n;++j){
+								if(p[i][j] == temp){
+									p[i][j] = -1;
+								}
+							}
+						}
+					}
+				}
+			}
+			if(kase>0){
+				cout<<endl;
+			}
+		}
+	}
+	return 0;
+}
