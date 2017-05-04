@@ -30,7 +30,6 @@ int findmin(const string& s){
 int main(){
 #ifdef LOCAL
 	freopen("input.txt","r",stdin);
-	freopen("output.txt","w",stdout);
 #endif
 	int n;
 	string s;
