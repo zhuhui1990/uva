@@ -1,0 +1,61 @@
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+
+using namespace std;
+
+const int maxn = 3005;
+int ddd[maxn];
+int residual[maxn];
+
+int main(){
+#ifdef LOCAL
+	freopen("input.txt","r",stdin);
+	freopen("output.txt","w",stdout);
+#endif
+	int dec,num;
+	int pre,res,work,dd,loc,start;
+	while(cin>>dec>>num){
+		memset(ddd,-1,sizeof(ddd));
+		memset(residual,0,sizeof(residual));
+		pre = dec / num;
+		res = dec % num;
+		loc = 1;
+		while(true){
+			int a = residual[14];
+			work = res * 10;
+			dd  = work / num;
+			res = work % num;
+			//cout<<"loc="<<loc<<" res="<<res<<endl;
+			if(residual[res] != 0 && dd == ddd[residual[res]]){
+				start = residual[res];
+				break;
+			}
+			if(loc < maxn){
+				ddd[loc] = dd;
+			}
+			residual[res] = loc;
+
+			++loc;
+		}
+		//cout<<"start="<<start<<" loc="<<loc<<endl;
+		if(residual[0] == start && ddd[start] != 0){
+			++start;
+			++loc;
+		}
+		printf("%d/%d = ",dec,num);
+		printf("%d.",pre);
+		for(int i=1;i<=50 && i<start;++i){
+			printf("%d",ddd[i]);
+		}
+		printf("(");
+		for(int i = start; i <= 50 && i < loc; ++i){
+			printf("%d",ddd[i]);
+		}
+		if(loc > 51){
+			printf("...");
+		}
+		printf(")\n");
+		printf("   %d = number of digits in repeating cycle\n\n",loc-start);
+	}
+}
