@@ -1,0 +1,150 @@
+#include <iostream>
+#include <cstdio>
+#include <string>
+#include <list>
+
+using namespace std;
+
+struct Student(){
+	string sid;
+	int cid;
+	string name;
+	int score[4];//Chinese, Maths, English, Programming
+};
+
+list<Student> stu;
+
+void print_main(){
+	cout<<"Welcome to Student Performance Management System (SPMS)."<<endl;
+	cout<<"\n1 - Add\n2 - Remove\n3 - Query\n4 - Show ranking\n5 - Show Statistics\n0 - Exit"<<endl;
+}
+
+void add(){
+	cout<<"Please enter the SID, CID, name and four scores. Enter 0 to finish."<<endl;
+	string s;
+	int cc;
+	string nn;
+	int ss[4];
+	while(cin>>s && s != "0"){
+		cin>>cc>>nn>>ss[0]>>ss[1]>>ss[2]>>ss[3];
+		if(list_find_one(s)){
+			cout<<"Duplicated SID."<<endl;
+		}else{
+			stu.push_back(Student(s,cc,nn,ss));
+		}
+		cout<<"Please enter the SID, CID, name and four scores. Enter 0 to finish."<<endl;
+	}
+}
+
+void remove(){
+	cout<<"Please enter SID or name. Enter 0 to finish."<<endl;
+	string s;
+	while(cin>>s && s != "0"){
+		auto it = stu.begin();
+		int cnt = 0;
+		if(s[0] >= '0' && s[0] <= '9'){ //sid
+			while(it != stu.end()){
+				if(it -> sid == s){
+					it = stu.erase(it);
+					++cnt;
+				}else{
+					++it;
+				}
+			}
+		} else { //name
+			while(it != stu.end()){
+				if(it -> name == s){
+					it = stu.erase(it);
+					++cnt;
+				}else{
+					++it;
+				}
+			}
+		}
+		cout<<cnt<<" student(s) removed."<<endl;
+		cout<<"Please enter SID or name. Enter 0 to finish."<<endl;
+	}
+}
+
+void query(){
+		cout<<"Please enter SID or name. Enter 0 to finish."<<endl;
+		string s;
+		while(cin>>s && s != "0"){
+			auto it = stu.begin();
+			if(s[0] >= '0' && s[0] <= '9'){ //sid
+				while(it != stu.end()){
+					if(it -> sid == s){
+						cout<<it -> sid <<" "<<it -> cid<<" "<<it -> name<<" ";
+						int total = 0;
+						for(int i=0;i<4;++i){
+							cout<<it->score[i]<<" ";
+							total += it->score[i];
+						}
+						double avg = total / 4. ;
+						int rank = getrank(it);
+						printf("%d %d %lf\n",rank,total,avg);
+					}
+				}
+			} else { //name
+					while(it != stu.end()){
+					if(it -> name == s){
+						cout<<it -> sid <<" "<<it -> cid<<" "<<it -> name<<" ";
+						int total = 0;
+						for(int i=0;i<4;++i){
+							cout<<it->score[i]<<" ";
+							total += it->score[i];
+						}
+						double avg = total / 4. ;
+						int rank = getrank(it);
+						printf("%d %d %lf\n",rank,total,avg);
+					}
+				}
+			}
+			cout<<"Please enter SID or name. Enter 0 to finish."<<endl;
+		}
+}
+
+void show_rank(){
+	cout<<"Showing the ranklist hurts students' self-esteem. Don't do that."<<endl;
+}
+
+void show_stat(){
+	cout<<"Please enter class ID. 0 for the whole statistics."<<endl;
+	
+}
+
+void process(int code){
+	switch (code){
+	case 1:
+		add();
+		break;
+	case 2:
+		remove();
+		break;
+	case 3:
+		query();
+		break;
+	case 4:
+		show_rank();
+		break;
+	case 5:
+		show_stat();
+		break;
+	default: 
+		break;
+	}
+}
+
+
+int main(){
+#ifdef LOCAL
+	freopen("input.txt","r",stdin);
+#endif
+	int code;
+	print_main();
+	while(cin>>code && code != 0){
+		process(code);
+		print_main();
+	}
+	return 0;
+}

@@ -1,0 +1,267 @@
+#include <stdio.h>
+#include <string.h>
+
+struct piece{
+    char name;
+    int row;
+    int col;
+    int live;
+}red[10],redbak[10];
+
+
+int board[13][13];//棋盘，只标记red棋子位置 
+int book[13][13];//标记red棋子管辖范围
+int boardbak[13][13];//棋盘备份 
+
+void printinfo(){
+    int i,j;
+    for(i=1;i<=10;i++){
+        for(j=1;j<=9;j++){
+            printf("%d ",board[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n\n");
+    
+    for(i=1;i<=10;i++){
+        for(j=1;j<=9;j++){
+            printf("%d ",book[i][j]);
+        }
+        printf("\n");
+    }
+}
+//处理管辖棋盘范围，比处理管辖皇宫范围要简单一些。
+ 
+void general(int row,int col){//红棋general管辖范围 
+    int i;
+    
+    for(i=row-1;i>=1;i--){
+        if(board[i][col]==0){
+            if(i<=3&&i>=1)
+                book[i][col]=1;
+        }else//else跟随最近的if，这是个比较难找的错误 
+            break;
+    }
+}
+
+void chariot(int row,int col){//管辖棋盘范围 
+    int i;
+    for(i=row-1;i>=1;i--){//行处理，靠近上边界 
+        if(board[i][col]==0)
+            book[i][col]=1;
+        else
+            break;
+    }
+    for(i=row+1;i<=10;i++){//行处理，靠近下边界 
+        if(board[i][col]==0)
+            book[i][col]=1;
+        else
+            break;
+    }
+    
+    for(i=col+1;i<=9;i++){//列处理，靠近右边界
+        if(board[row][i]==0)
+            book[row][i]=1;
+        else
+            break; 
+    } 
+    for(i=col-1;i>=1;i--){//列处理，靠近左边界
+        if(board[row][i]==0)
+            book[row][i]=1;
+        else
+            break; 
+    }
+}
+void cannon(int row,int col){//炮管辖棋盘范围 
+    int i;
+    int flag;
+    //架炮
+    
+    flag=0;
+    for(i=row-1;i>=1;i--){//上方处理
+        if(flag){
+            if(board[i][col]==0)
+                book[i][col]=1;
+            else
+                break;
+        }
+        if(flag==0&&board[i][col]==1)
+            flag=1;
+         
+    }
+    
+    flag=0;
+    for(i=row+1;i<=10;i++){//下方处理
+        if(flag){
+            if(board[i][col]==0)
+                book[i][col]=1;
+            else
+                break;
+        } 
+        if(flag==0&&board[i][col]==1)
+            flag=1;
+    }
+    
+    flag=0;
+    for(i=col-1;i>=1;i--){//左方处理
+        if(flag){
+            if(board[row][i]==0)
+                book[row][i]=1;
+            else
+                break;
+        }
+        if(flag==0&&board[row][i]==1)
+            flag=1; 
+    }
+    
+    flag=0;
+    for(i=col+1;i<=9;i++){//右方处理
+        if(flag){
+            if(board[row][i]==0)
+                book[row][i]=1;
+            else
+                break;
+        } 
+        if(flag=0&&board[row][i]==1)
+            flag=1;
+    } 
+}
+void horse(int row,int col){//马管辖棋盘范围 
+    //以管辖位置是否存在进行处理，越界问题就容易了
+    
+    //竖线上有无马脚判断 
+    if(row-2>=1&&col-1>=1){//左上角 
+        if(board[row-1][col]==0)
+            book[row-2][col-1]=1;
+    }
+    if(row-2>=1&&col+1<=9){//右上角
+        if(board[row-1][col]==0)
+            book[row-2][col+1]=1; 
+    }
+    if(row+2<=10&&col-1>=1){//左下角
+        if(board[row+1][col]==0)
+            book[row+2][col-1]=1; 
+    }
+    if(row+2<=10&&col+1<=9){//右下角 
+        if(board[row+1][col]==0)
+            book[row+2][col+1]=1;
+    }
+    
+    //横线上有无马脚判断
+    if(row-1>=1&&col-2>=1){//左上角 
+        if(board[row][col-1]==0)
+            book[row-1][col-2]=1;
+    } 
+    if(row+1<=10&&col-2>=1){//左下角 
+        if(board[row][col-1]==0)
+            book[row+1][col-2]=1;
+    }
+    if(row-1>=1&&col+2<=10){//右上角 
+        if(board[row][col+1]==0)
+            book[row-1][col+2]=1;
+    }
+    if(row+1<=10&&col+2<=9){//右下角 
+        if(board[row][col+1]==0)
+            book[row+1][col+2]=1;
+    }
+}
+
+int check(int newbr,int newbc,int n){//是否将军
+    int i;
+    for(i=0;i<n;i++)
+        if(red[i].row==newbr&&red[i].col==newbc){
+            red[i].live=0;
+            board[newbr][newbc]=0;//忘记清除棋盘被吃子的标识，忘记加上此句了。2016-10-30 
+        }
+    for(i=0;i<n;i++)
+        if(red[i].live==1){
+            switch(red[i].name){
+                case 'G':
+                    general(red[i].row,red[i].col);
+                    break;
+                case 'R':
+                    chariot(red[i].row,red[i].col);
+                    break;
+                case 'H':
+                    horse(red[i].row,red[i].col);
+                    break;
+                case 'C':
+                    cannon(red[i].row,red[i].col);
+                    break;
+            }
+        } 
+    if(book[newbr][newbc]==1)
+        return 1;
+    else
+        return 0;
+        
+}
+
+
+int main(){
+#ifdef LOCAL
+	freopen("rand.in","r",stdin);
+	freopen("refout.txt","w",stdout);
+#endif
+    int n,br,bc;
+    char name[5];
+    int i;
+    int ans;
+    int res;
+    while(scanf("%d%d%d",&n,&br,&bc)==3&&n&&br&&bc){
+        ans=1;
+        memset(board,0,sizeof(board));
+        memset(red,0,sizeof(red));
+        for(i=0;i<n;i++){
+            scanf("%s%d%d",name,&(red[i].row),&(red[i].col));
+            red[i].name=name[0];
+            red[i].live=1;
+            board[red[i].row][red[i].col]=1;//标记棋盘落子位置 
+        }       
+        
+        memcpy(boardbak,board,sizeof(board));
+        memcpy(redbak,red,sizeof(red));
+        memset(book,0,sizeof(book));
+        //black general moving like horse
+        
+        if(br-1>=1){//上移处理
+            res=check(br-1,bc,n);
+            ans*=res;
+//            printf("上%d\n",res);
+        }
+        
+        memcpy(board,boardbak,sizeof(boardbak));
+        memcpy(red,redbak,sizeof(redbak));
+        memset(book,0,sizeof(book));
+        if(br+1<=3){//下移处理
+            res=check(br+1,bc,n);
+            ans*=res;
+//            printf("下%d\n",res);
+        }
+        
+        memcpy(board,boardbak,sizeof(boardbak));
+        memcpy(red,redbak,sizeof(redbak));
+        memset(book,0,sizeof(book));
+        if(bc-1>=4){//左移处理 
+            res=check(br,bc-1,n);
+            ans*=res;
+//            printf("左%d\n",res);
+        } 
+        
+        memcpy(board,boardbak,sizeof(boardbak));
+        memcpy(red,redbak,sizeof(redbak));
+        memset(book,0,sizeof(book));
+        if(bc+1<=6){//右移处理 
+            res=check(br,bc+1,n);//出现了笔误，将bc+1写成bc-1 
+            ans*=res; 
+//            printf("右%d\n",res);
+        }
+        
+        
+        if(ans==0)
+            printf("NO\n");
+        else
+            printf("YES\n");
+    }
+    return 0;
+}
